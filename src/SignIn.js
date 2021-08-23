@@ -15,18 +15,28 @@ class SignIn extends Component{
 
     render(){
         return(
-        
+          <div className="container modal-dialog">
+            <div className="modal-content rounded-5 shadow p-5">
             <form onSubmit={this.handleSignIn}>
-            <label htmlFor="Username">Username</label>
-            <input type="text" name="username" placeholder="Enter your email or username"/>
-            <label htmlFor="Password">Password</label>
-            <input type="password" name="password" placeholder="Enter your password"/>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="Username">Username</label>
+              <input className="form-control" type="text" name="username" placeholder="Enter your email or username"/>
+            </div>
+            <div className="mb-3">
+              <label className="form-label" htmlFor="Password">Password</label>
+              <input className="form-control" type="password" name="password" placeholder="Enter your password"/>
             <Link to="/ForgotPassword">Forgot password?</Link>
-            <input type="checkbox" name="remenberMe"/>
-            <label htmlFor="Remembre me">Remembre me</label>
-            <button >Sign in</button>or <Link to="/signUp">Sign up</Link>
+            </div>           
+            <div className="form-check mb-2">
+              <input className="form-check-input" type="checkbox" name="remenberMe"/>  
+              <label className="form-check-label" htmlFor="RemembreMe">Remembre me</label>
+            </div>
+            <div className="mb-3">
+              <button className="btn btn-primary" >Sign in</button> or <Link to="/signUp">Sign up</Link>
+            </div>
             </form>
-        
+            </div>
+        </div>
             )
     }
 
