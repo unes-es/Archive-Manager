@@ -14,19 +14,19 @@ function App() {
     <div className="">
       <Nav/>
             <Switch>
-              <Route exact path="/">
+              <Route path="/">
                 <Home/>
               </Route>
-              <Route exact path="/home">
+              <Route path="/home">
                 <Home/>
               </Route>
-              <Route exact path="/SignIn">
+              <Route path="/SignIn">
                 <SignIn/>
               </Route>
-              <Route exact path="/SignUp">
+              <Route path="/SignUp">
                 <SignUp/>
               </Route>
-              <Route exact path="/ForgotPassword">
+              <Route path="/ForgotPassword">
                 <ForgotPassword/>
               </Route>
             </Switch>
