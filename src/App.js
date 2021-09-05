@@ -6,6 +6,8 @@ import ForgotPassword from "./ForgotPassword";
 import Nav from "./Nav";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthProvider } from "./AuthContext";
+import PrivateRoute from "./PrivateRoute";
+import Dashboard from "./Dashboard";
 
 function App() {
   return (
@@ -14,19 +16,22 @@ function App() {
         <div className="">
           <Nav />
           <Switch>
-            <Route exact path="/">
+            <Route exact path="/" component={Home}>
               <Home />
             </Route>
-            <Route path="/home">
+            <Route path="/home" component={Home}>
               <Home />
             </Route>
-            <Route path="/SignIn">
+            <PrivateRoute path="/dashboard" component={Dashboard}>
+              <Dashboard />
+            </PrivateRoute>
+            <Route path="/SignIn" component={SignIn}>
               <SignIn />
             </Route>
-            <Route path="/SignUp">
+            <Route path="/SignUp" component={SignUp}>
               <SignUp />
             </Route>
-            <Route path="/ForgotPassword">
+            <Route path="/ForgotPassword" component={ForgotPassword}>
               <ForgotPassword />
             </Route>
           </Switch>

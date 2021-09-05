@@ -1,40 +1,66 @@
-import React, {Component } from 'react'
+import React, { Component } from "react";
 
-
-const AuthContext = React.createContext()
+const AuthContext = React.createContext();
 
 export class AuthProvider extends Component {
-    constructor(props){
-        super(props)
-        this.state = {
-            user : {}
-        }
-        this.signUp = this.signUp.bind(this)
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+      isAuthenticated: false,
+      user: {},
+    };
+    this.signUp = this.signUp.bind(this);
+    this.logOut = this.logOut.bind(this);
+    this.signIn = this.signIn.bind(this);
+  }
 
+  async signUp(user, callback) {
+    //await
+    this.setState({ user: user, isAuthenticated: true }, () => {
+      console.log("signUp " + this.state.user + this.state.isAuthenticated);
+    });
+    callback();
+  }
 
-    signUp(user){
-        this.setState({
-            user : user
-        },()=>{
-            console.log(this.state.user)
-        })
-        
-    }
+  logOut() {
+    this.setState({ isAuthenticated: false, user: null }, () => {
+      console.log("loggd out");
+    });
+  }
 
-    render() {
-        const user = this.state.user
-        const  {signUp} = this
-        return (
-            
-            <AuthContext.Provider value={{
-                user,
-                signUp
-            }}>
-                {this.props.children}
-            </AuthContext.Provider>
-        )
-    }
+  async signIn(user, callback) {
+    //await
+    const user_ = {
+      username: user.emailOrUsername,
+      email: user.emailOrUsername,
+    };
+    console.log(user_);
+    this.setState({ user: user_, isAuthenticated: true }, () => {
+      console.log(
+        "signIn " + this.state.user.username + this.state.isAuthenticated
+      );
+    });
+    callback();
+  }
+
+  render() {
+    const user = this.state.user;
+    const isAuthenticated = this.state.isAuthenticated;
+    const { signUp, signIn, logOut } = this;
+    return (
+      <AuthContext.Provider
+        value={{
+          user,
+          signUp,
+          signIn,
+          logOut,
+          isAuthenticated,
+        }}
+      >
+        {this.props.children}
+      </AuthContext.Provider>
+    );
+  }
 }
 
-export default AuthContext
+export default AuthContext;
