@@ -19,23 +19,30 @@ class SignUp extends Component {
 
   handleSignUp(e) {
     e.preventDefault();
+    const { email, password, confirmEmail, confirmPassword, username } =
+      this.state;
     const errors = [];
-    if (this.state.email !== this.state.confirmEmail)
-      errors.push("Emails do not match");
-    if (this.state.password !== this.state.confirmPassword)
-      errors.push("Passwords do not match");
+    const filter = new RegExp(
+      /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
+    );
+    if (email.trim() === "" || password.trim() === "") {
+      errors.push("Email and password are required");
+    }
+    if (!filter.test(email)) {
+      errors.push("Enter a valid email");
+    }
+    if (email !== confirmEmail) errors.push("Emails do not match");
+    if (password !== confirmPassword) errors.push("Passwords do not match");
     this.setState({
       errors: errors,
     });
 
     if (errors.length !== 0) return;
     const user = {
-      username: this.state.username,
-      email: this.state.email,
-      password: this.state.password,
+      username: username,
+      email: email,
+      password: password,
     };
-    console.log("signUp " + this.context.isAuthenticated);
-
     this.context.signUp(user, () => {
       this.props.history.push("/Dashboard");
     });

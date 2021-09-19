@@ -6,7 +6,7 @@ class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      emailOrUsername: "",
+      email: "",
       password: "",
       errors: [],
     };
@@ -20,20 +20,35 @@ class SignIn extends Component {
         [e.target.name]: e.target.value,
       },
       () => {
-        console.log(this.state.emailOrUsername);
+        //console.log(this.state.email);
       }
     );
   }
 
   handleSignIn(e) {
     e.preventDefault();
-    //TODO: Add form validation
+    const filter = new RegExp(
+      /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
+    );
+    const errors = [];
+    const { email, password } = this.state;
+    if (email.trim() === "" || password.trim() === "") {
+      errors.push("Email and password are required");
+    }
+    if (!filter.test(email)) {
+      errors.push("Enter a valid email");
+    }
+    this.setState({
+      errors: errors,
+    });
+    if (errors.length > 0) return;
+
     const user = {
-      emailOrUsername: this.state.emailOrUsername,
+      email: this.state.email,
       password: this.state.password,
     };
     this.context.signIn(user, () => {
-      this.props.history.push("/Dashboard");
+      this.props.history.push("/dashboard");
     });
   }
 
@@ -41,17 +56,24 @@ class SignIn extends Component {
     return (
       <div className="container modal-dialog">
         <div className="modal-content rounded-5 shadow p-5">
+          {this.state.errors.length > 0 && (
+            <div className="alert alert-warning" role="alert">
+              {this.state.errors.map((error, i) => {
+                return <li key={i}>{error}</li>;
+              })}
+            </div>
+          )}
           <form onSubmit={this.handleSignIn}>
             <div className="mb-3">
-              <label className="form-label" htmlFor="Username">
-                Username
+              <label className="form-label" htmlFor="email">
+                Email
               </label>
               <input
                 className="form-control"
                 type="text"
-                name="emailOrUsername"
+                name="email"
                 onChange={this.handleChange}
-                placeholder="Enter your email or username"
+                placeholder="Enter your email"
               />
             </div>
             <div className="mb-3">
