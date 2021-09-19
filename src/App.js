@@ -8,6 +8,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthProvider } from "./AuthContext";
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "./Dashboard";
+import UnauthenticatedRoute from "./UnauthenticatedRoute";
 
 function App() {
   return (
@@ -25,13 +26,13 @@ function App() {
             <PrivateRoute path="/dashboard" component={Dashboard}>
               <Dashboard />
             </PrivateRoute>
-            <Route path="/SignIn" component={SignIn}>
+            <UnauthenticatedRoute path="/signIn" component={SignIn}>
               <SignIn />
-            </Route>
-            <Route path="/SignUp" component={SignUp}>
+            </UnauthenticatedRoute>
+            <UnauthenticatedRoute path="/signUp" component={SignUp}>
               <SignUp />
-            </Route>
-            <Route path="/ForgotPassword" component={ForgotPassword}>
+            </UnauthenticatedRoute>
+            <Route path="/forgotPassword" component={ForgotPassword}>
               <ForgotPassword />
             </Route>
           </Switch>
