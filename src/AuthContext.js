@@ -5,10 +5,12 @@ const AuthContext = React.createContext();
 export class AuthProvider extends Component {
   constructor(props) {
     super(props);
+    const localUser = JSON.parse(localStorage.getItem("user"));
     this.state = {
-      isAuthenticated: false,
-      user: {},
+      isAuthenticated: localUser !== null,
+      user: localUser,
     };
+    this.setCurrentUser = this.setCurrentUser.bind(this);
     this.signUp = this.signUp.bind(this);
     this.logOut = this.logOut.bind(this);
     this.signIn = this.signIn.bind(this);
@@ -16,13 +18,20 @@ export class AuthProvider extends Component {
 
   async signUp(user, callback) {
     //await
-    this.setState({ user: user, isAuthenticated: true }, () => {
-      console.log("signUp " + this.state.user + this.state.isAuthenticated);
-    });
+    this.setCurrentUser(user);
     callback();
   }
 
+  setCurrentUser(user) {
+    if (user.username === undefined) user.username = "defaultUserName";
+    localStorage.setItem("user", JSON.stringify(user));
+    this.setState({ user: user, isAuthenticated: true }, () => {
+      //console.log("signUp " + this.state.user + this.state.isAuthenticated);
+    });
+  }
+
   logOut() {
+    localStorage.removeItem("user");
     this.setState({ isAuthenticated: false, user: null }, () => {
       console.log("loggd out");
     });
@@ -30,16 +39,7 @@ export class AuthProvider extends Component {
 
   async signIn(user, callback) {
     //await
-    const user_ = {
-      username: user.emailOrUsername,
-      email: user.emailOrUsername,
-    };
-    console.log(user_);
-    this.setState({ user: user_, isAuthenticated: true }, () => {
-      console.log(
-        "signIn " + this.state.user.username + this.state.isAuthenticated
-      );
-    });
+    this.setCurrentUser(user);
     callback();
   }
 
