@@ -7,7 +7,6 @@ export default function PrivateRoute({ component: Component, ...rest }) {
     <Route {...rest}>
       <AuthContext.Consumer>
         {({ isAuthenticated }) => {
-          console.log("PrivateRoute " + isAuthenticated);
           return isAuthenticated ? <Component /> : <Redirect to="/SignIn" />;
         }}
       </AuthContext.Consumer>
