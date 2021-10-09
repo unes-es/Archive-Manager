@@ -29,6 +29,15 @@ export default function DashboardSideBar() {
             <NavLink
               className="text-white nav-link"
               activeClassName="active"
+              to="/dashboard/folders"
+            >
+              Folders
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              className="text-white nav-link"
+              activeClassName="active"
               to="/dashboard/archive"
             >
               Archive
