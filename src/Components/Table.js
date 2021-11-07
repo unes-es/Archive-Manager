@@ -1,15 +1,17 @@
-import React, { useRef } from "react";
-
 const TableHeader = (props) => {
+  const header = props.header.map((row) => {
+    return <th>{row}</th>;
+  });
   return (
     <thead>
       <tr>
-        <th>
-          <input type="checkbox" onChange={(e) => props.check(e)} />
-        </th>
-        <th>Name</th>
-        <th>Job</th>
-        <th>Manage</th>
+        {props.selectAll && (
+          <th>
+            <input type="checkbox" onChange={(e) => props.selectAll(e)} />
+          </th>
+        )}
+        {header}
+        {props.actions && <th>Actions</th>}
       </tr>
     </thead>
   );
@@ -17,34 +19,32 @@ const TableHeader = (props) => {
 
 const TableBody = (props) => {
   const rows = props.data.map((row, index) => {
+    const columns = props.columns.map((column) => {
+      return <td>{row[column]}</td>;
+    });
     return (
-      <tr key={index}>
-        <td>
-          <input
-            className="selectRow"
-            name
-            checked={row.selected}
-            type="checkbox"
-            onChange={() => props.select(index)}
-          />
-        </td>
-        <td>{row.name}</td>
-        <td>{row.job}</td>
-        <td>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => props.remove(index)}
-          >
-            Delete
-          </button>
-          <span> </span>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => props.showModal(index)}
-          >
-            Edit
-          </button>
-        </td>
+      <tr
+        className="clickable-row"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (props.view !== undefined) props.view(row);
+        }}
+        Style="cursor: pointer;"
+        key={index}
+      >
+        {props.select && (
+          <td>
+            <input
+              checked={row.selected}
+              type="checkbox"
+              onChange={() => {}}
+              onClick={(e) => props.select(e, row.id)}
+            />
+          </td>
+        )}
+        {columns}
+        {props.actions !== undefined && <td>{props.actions(row)}</td>}
       </tr>
     );
   });
@@ -53,17 +53,17 @@ const TableBody = (props) => {
 };
 
 const Table = (props) => {
-  const { data, remove, showModal, select, check } = props;
+  const { data, select, selectAll, view, header, columns, actions } = props;
   return (
-    <table class="table table-striped table-hover">
-      <TableHeader check={check} />
+    <table class="table table-striped table-hover responsive">
+      <TableHeader actions={actions} selectAll={selectAll} header={header} />
       <TableBody
         data={data}
-        remove={remove}
         select={select}
-        showModal={showModal}
-        check={check}
-      />
+        view={view}
+        columns={columns}
+        actions={actions}
+      ></TableBody>
     </table>
   );
 };
