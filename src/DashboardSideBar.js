@@ -27,20 +27,32 @@ export default function DashboardSideBar() {
           </li>
           <li className="nav-item">
             <NavLink
+              exact
               className="text-white nav-link"
               activeClassName="active"
               to="/dashboard/folders"
             >
-              Folders
+              <i class="bi bi-folder2"></i> Folders
             </NavLink>
           </li>
           <li className="nav-item">
             <NavLink
+              exact
               className="text-white nav-link"
               activeClassName="active"
-              to="/dashboard/archive"
+              to="/dashboard/archives"
             >
-              Archive
+              <i class="bi bi-archive"></i> Archive
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              exact
+              className="text-white nav-link"
+              activeClassName="active"
+              to="/dashboard/trash"
+            >
+              <i class="bi bi-trash"></i> Trash
             </NavLink>
           </li>
         </ul>

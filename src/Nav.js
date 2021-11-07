@@ -27,7 +27,7 @@ function Nav() {
                 <ul className=" ms-auto nav justify-content-end ">
                   <li className="nav-item">
                     <a
-                      href="#"
+                      href="#!"
                       className="nav-link px-2 text-white"
                       onClick={logOut}
                     >

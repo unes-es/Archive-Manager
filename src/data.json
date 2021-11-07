@@ -1,0 +1,114 @@
+[
+    {
+      "id":"1",
+        "number": "RAFA841525DD",
+        "title": "Donation",
+        "date" : "10/01/2007",
+        "type" : "",
+        "progress" : "En cours de validation",
+        "status" : "Active",
+        "clients" : [
+            {"id" : "1"},
+            {"id" : "2"}
+        ],
+        "files" :[
+            {
+              "id" : "1",
+              "name" : "Contrat",
+              "path" : "test.com/test",
+              "date" : "02/25/2016",
+              "progress" : "Validé",
+              "status" : "Active"
+
+            },
+            {
+              "id" : "2",
+              "name" : "Quitance",
+              "path" : "test.com/test",
+              "date" : "03/06/2016",
+              "status" : "Active"
+
+            }
+
+        ]
+
+      },
+      {
+        "id" :"2",
+        "number": "5FA95623152",
+        "title": "Acte de notoriété",
+        "date" : "11/30/2020",        
+        "type" : "",
+        "progress" : "Validé",
+        "status" : "Active",
+        "clients" : [
+            {"id" : "1"},
+            {"id" : "3"}
+        ]
+      },
+      {
+        "id":"3",
+        "number": "R85FA84152MD",
+        "title": "Testament",
+        "date" : "10/26/2021",        
+        "type" : "",
+        "progress" : "Transferé",
+        "status" : "Active",
+        "clients" : [
+            {"id" : "3"},
+            {"id" : "5"}
+        ]
+      },
+      {
+        "id":"4",
+        "number": "R326525AAA",
+        "title": "Contrat de mariage",
+        "date" : "02/09/2021",        
+        "type" : "",
+        "progress" : "Signé",
+        "status" : "Archived",
+        "clients" : [
+            {"id" : "2"},
+            {"id" : "4"}
+        ]
+      },
+      {
+        "id" :"5",
+        "number": "R326525AAA",
+        "title": "Contrat",
+        "date" : "01/11/2001",        
+        "type" : "",
+        "progress" : "Rejeté",
+        "status" : "Archived",
+        "clients" : [
+            {"id" : "2"},
+            {"id" : "4"}
+        ]
+      },      
+      {
+        "id":"6",
+        "number": "R326525AAA",
+        "title": "Contrat de mariage",
+        "date" : "02/09/2021",        
+        "type" : "",
+        "progress" : "Signé",
+        "status" : "Active",
+        "clients" : [
+            {"id" : "2"},
+            {"id" : "4"}
+        ]
+      },
+      {
+        "id":"7",
+        "number": "54DA54DA65D4A",
+        "title": "Contrat de vente",
+        "date" : "10/10/2010",        
+        "type" : "",
+        "progress" : "Signé",
+        "status" : "Removed",
+        "clients" : [
+            {"id" : "2"},
+            {"id" : "4"}
+        ]
+      }
+]

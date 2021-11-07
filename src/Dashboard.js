@@ -1,13 +1,6 @@
 import React from "react";
 import AuthContext from "./AuthContext";
-import {
-  Link,
-  NavLink,
-  Switch,
-  Route,
-  useRouteMatch,
-  useParams,
-} from "react-router-dom";
+import { Switch, Route, useRouteMatch } from "react-router-dom";
 import DashboardSideBar from "./DashboardSideBar";
 import DashboardRouter from "./DashboardRouter";
 
@@ -17,10 +10,7 @@ export default function Dashboard() {
     <div className="container-fluid">
       <div className="row">
         <DashboardSideBar />
-        <main
-          className="col-md-9 ms-sm-auto col-lg-10 px-md-4"
-          Style="height:1000px;"
-        >
+        <main className="col-md-9 ms-sm-auto col-lg-10 px-md-4">
           <Switch>
             <Route path={`${match.path}/:page`} component={DashboardRouter}>
               <DashboardRouter />
