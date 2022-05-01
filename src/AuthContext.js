@@ -25,16 +25,12 @@ export class AuthProvider extends Component {
   setCurrentUser(user) {
     if (user.username === undefined) user.username = "defaultUserName";
     localStorage.setItem("user", JSON.stringify(user));
-    this.setState({ user: user, isAuthenticated: true }, () => {
-      //console.log("signUp " + this.state.user + this.state.isAuthenticated);
-    });
+    this.setState({ user: user, isAuthenticated: true }, () => {});
   }
 
   logOut() {
     localStorage.removeItem("user");
-    this.setState({ isAuthenticated: false, user: null }, () => {
-      console.log("loggd out");
-    });
+    this.setState({ isAuthenticated: false, user: null }, () => {});
   }
 
   async signIn(user, callback) {

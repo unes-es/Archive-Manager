@@ -6,7 +6,6 @@ function Nav() {
   return (
     <AuthContext.Consumer>
       {({ isAuthenticated, logOut }) => {
-        console.log("context");
         return (
           <>
             <nav className="sticky-top hstack p-3 bg-dark text-white ">

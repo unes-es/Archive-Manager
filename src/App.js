@@ -5,10 +5,13 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ForgotPassword from "./ForgotPassword";
 import Nav from "./Nav";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 import { AuthProvider } from "./AuthContext";
 import PrivateRoute from "./PrivateRoute";
 import Dashboard from "./Dashboard";
 import UnauthenticatedRoute from "./UnauthenticatedRoute";
+import Test from "./Draft/Test";
+import EventsTest from "./Draft/EventsTest";
 
 function App() {
   return (
@@ -17,24 +20,14 @@ function App() {
         <div className="">
           <Nav />
           <Switch>
-            <Route exact path="/" component={Home}>
-              <Home />
-            </Route>
-            <Route path="/home" component={Home}>
-              <Home />
-            </Route>
-            <PrivateRoute path="/dashboard" component={Dashboard}>
-              <Dashboard />
-            </PrivateRoute>
-            <UnauthenticatedRoute path="/signIn" component={SignIn}>
-              <SignIn />
-            </UnauthenticatedRoute>
-            <UnauthenticatedRoute path="/signUp" component={SignUp}>
-              <SignUp />
-            </UnauthenticatedRoute>
-            <Route path="/forgotPassword" component={ForgotPassword}>
-              <ForgotPassword />
-            </Route>
+            <Route exact path="/" component={Home} />
+            <Route path="/home" component={Home} />
+            <Route path="/test" component={Test} />
+            <Route path="/events" component={EventsTest} />
+            <PrivateRoute path="/dashboard" component={Dashboard} />
+            <UnauthenticatedRoute path="/signIn" component={SignIn} />
+            <UnauthenticatedRoute path="/signUp" component={SignUp} />
+            <Route path="/forgotPassword" component={ForgotPassword} />
           </Switch>
         </div>
       </AuthProvider>

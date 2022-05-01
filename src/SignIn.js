@@ -19,9 +19,7 @@ class SignIn extends Component {
       {
         [e.target.name]: e.target.value,
       },
-      () => {
-        //console.log(this.state.email);
-      }
+      () => {}
     );
   }
 

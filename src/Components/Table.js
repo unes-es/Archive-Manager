@@ -1,6 +1,6 @@
 const TableHeader = (props) => {
-  const header = props.header.map((row) => {
-    return <th>{row}</th>;
+  const header = props.header.map((row, index) => {
+    return <th key={index}>{row}</th>;
   });
   return (
     <thead>
@@ -19,8 +19,8 @@ const TableHeader = (props) => {
 
 const TableBody = (props) => {
   const rows = props.data.map((row, index) => {
-    const columns = props.columns.map((column) => {
-      return <td>{row[column]}</td>;
+    const columns = props.columns.map((column, i) => {
+      return <td key={i}>{row[column]}</td>;
     });
     return (
       <tr
@@ -30,7 +30,7 @@ const TableBody = (props) => {
           e.stopPropagation();
           if (props.view !== undefined) props.view(row);
         }}
-        Style="cursor: pointer;"
+        style={{ cursor: "pointer" }}
         key={index}
       >
         {props.select && (
@@ -55,7 +55,7 @@ const TableBody = (props) => {
 const Table = (props) => {
   const { data, select, selectAll, view, header, columns, actions } = props;
   return (
-    <table class="table table-striped table-hover responsive">
+    <table className="table table-striped table-hover responsive">
       <TableHeader actions={actions} selectAll={selectAll} header={header} />
       <TableBody
         data={data}

@@ -10,7 +10,6 @@ export default function UnauthenticatedRoute({
     <Route {...rest}>
       <AuthContext.Consumer>
         {({ isAuthenticated }) => {
-          console.log("UnauthenticatedRoute " + isAuthenticated);
           return !isAuthenticated ? (
             <Component />
           ) : (
