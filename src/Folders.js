@@ -6,27 +6,53 @@ import Input from "./Components/Input";
 import { format } from "date-fns";
 import Folder from "./Folder";
 import Table from "./Components/Table";
+import { Alert, Spinner, Form } from "react-bootstrap";
+import EventsManager from "./EventsManager";
 
 export default class Folders extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: FoldersManager.getFolders(this.props.status),
+      data: [],
       show: false,
       folder: new Folder(),
       _for: "",
       showFilesView: false,
+      showAlert: false,
+      alertBody: "",
+      alertVariant: "success",
+      loading: true,
+      searchText: "",
     };
+    FoldersManager.init().then(() => {
+      console.log(FoldersManager.getFolders(this.props.status));
+      this.setState({
+        data: FoldersManager.getFolders(this.props.status),
+        loading: false,
+      });
+    });
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.status != prevProps.status) {
+    if (this.props.status !== prevProps.status) {
       this.setState({
         showFilesView: false,
         data: FoldersManager.getFolders(this.props.status),
       });
     }
   }
+
+  handleSearch = (e) => {
+    var { searchText } = this.state;
+    searchText = e.target.value;
+    this.setState({ searchText: searchText }, () => {
+      this.setState({
+        data: FoldersManager.getFolders(this.props.status).filter((folder) => {
+          return folder.contains(this.state.searchText);
+        }),
+      });
+    });
+  };
 
   view = (folder) => {
     this.setState(
@@ -52,7 +78,7 @@ export default class Folders extends Component {
                 this.showModal("edit", folder);
               }}
             >
-              <i class="bi bi-pencil-square"></i>
+              <i className="bi bi-pencil-square"></i>
             </button>
             <span> </span>
             <button
@@ -63,7 +89,7 @@ export default class Folders extends Component {
                 this.showModal("archive", folder);
               }}
             >
-              <i class="bi bi-archive"></i>
+              <i className="bi bi-archive"></i>
             </button>
             <span> </span>
             <button
@@ -71,14 +97,13 @@ export default class Folders extends Component {
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.showModal("delete", folder);
+                this.showModal("remove", folder);
               }}
             >
-              <i class="bi bi-trash"></i>
+              <i className="bi bi-trash"></i>
             </button>
           </>
         );
-        break;
       case "Archived":
         return (
           <button
@@ -86,13 +111,12 @@ export default class Folders extends Component {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              this.showModal("delete", folder);
+              this.showModal("remove", folder);
             }}
           >
-            <i class="bi bi-trash"></i>
+            <i className="bi bi-trash"></i>
           </button>
         );
-        break;
       case "Removed":
         return (
           <button
@@ -106,7 +130,8 @@ export default class Folders extends Component {
             Restore
           </button>
         );
-        break;
+      default:
+        return;
     }
   };
 
@@ -121,7 +146,7 @@ export default class Folders extends Component {
   select = (e, id) => {
     e.stopPropagation();
     const { data } = this.state;
-    const index = data.findIndex((folder) => folder.id == id);
+    const index = data.findIndex((folder) => folder.id === id);
     data[index].selected = e.target.checked;
     this.setState({
       data: data,
@@ -152,7 +177,7 @@ export default class Folders extends Component {
 
   modalBody = () => {
     const { folder, _for } = this.state;
-    if (_for == "add" || _for == "edit") {
+    if (_for === "add" || _for === "edit") {
       return (
         <form>
           <Input
@@ -176,23 +201,68 @@ export default class Folders extends Component {
             value={format(new Date(folder.date), "yyyy-MM-dd")}
             onChange={this.handleChange}
           />
+          <label className="form-label" htmlFor="progress">
+            Progress
+          </label>
+          <Form.Select
+            value={folder.progress}
+            name="progress"
+            aria-label="Default select example"
+            onChange={this.handleChange}
+          >
+            <option value="En cours de signature">En cours de signature</option>
+            <option value="Validé">Validé</option>
+            <option value="Annulé">Annulé</option>
+            <option value="Envoyé">Envoyé</option>
+          </Form.Select>
         </form>
       );
-    } else if (_for == "archive") return "archive?";
-    else if (_for == "delete") return "delete?";
-    else if (_for == "deleteSelection") return "delete selection?";
+    } else if (_for === "archive") return "archive?";
+    else if (_for === "remove") return "remove?";
+    else if (_for === "deleteSelection") return "remove selection?";
   };
 
   modalOnConfirm = () => {
-    const { data, folder, _for } = this.state;
-    switch (_for) {
+    const { data, _for } = this.state;
+    var { folder } = this.state;
+    const command = _for;
+
+    if (command !== "deleteSelection")
+      EventsManager.execute(command, folder).then((res) => {
+        console.log(res.respond);
+        this.closeModal();
+        if (res.error !== null) {
+          this.setState({ alertVariant: "danger", alertBody: res.error });
+        } else {
+          this.setState(
+            {
+              alertVariant: "success",
+              folder: res.respond,
+              alertBody: "Folder " + _for + "ed",
+            },
+            () => {
+              folder = this.state;
+            }
+          );
+        }
+        this.setState({
+          showAlert: true,
+        });
+      });
+    else
+      this.setState({
+        alertVariant: "success",
+        alertBody: "Selected Folder deleted",
+      });
+
+    switch (command) {
       case "edit":
         FoldersManager.edit(folder);
         break;
       case "archive":
         FoldersManager.archive(folder.id);
         break;
-      case "delete":
+      case "remove":
         FoldersManager.delete(folder.id);
         break;
       case "add":
@@ -204,13 +274,13 @@ export default class Folders extends Component {
       case "deleteSelection":
         FoldersManager.deleteFolders(
           data.filter((folder) => {
-            return folder.selected == true;
+            return folder.selected === true;
           })
         );
         break;
+      default:
+        break;
     }
-    FoldersManager.save(this.state.data);
-    this.closeModal();
   };
 
   showFiles = (show) => {
@@ -227,34 +297,55 @@ export default class Folders extends Component {
   render() {
     return (
       <>
+        <Alert
+          show={this.state.showAlert}
+          variant={this.state.alertVariant}
+          onClose={() => {
+            this.setState({ showAlert: false });
+          }}
+          dismissible
+        >
+          {this.state.alertBody}
+        </Alert>
         {!this.state.showFilesView && (
           <>
-            {this.props.status == "Active" && (
-              <>
+            <div className="row">
+              <div className="col" Style={"margin: auto"}>
+                {this.props.status === "Active" && (
+                  <>
+                    <button
+                      className="btn btn-primary btn-sm"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        this.setState({ folder: new Folder() }, () => {
+                          this.showModal("add", this.state.folder);
+                        });
+                      }}
+                    >
+                      <i className="bi bi-folder-plus"></i>
+                    </button>
+                    <span> </span>
+                  </>
+                )}
                 <button
-                  className="btn btn-primary btn-sm mt-3"
+                  className="btn btn-danger btn-sm"
                   onClick={(e) => {
                     e.preventDefault();
-                    this.setState({ folder: new Folder() }, () => {
-                      this.showModal("add", this.state.folder);
-                    });
+                    this.showModal("deleteSelection");
                   }}
                 >
-                  <i class="bi bi-folder-plus"></i>
+                  <i className="bi bi-trash"></i>
                 </button>
-                <span> </span>
-              </>
-            )}
-            <button
-              className="btn btn-danger btn-sm mt-3"
-              onClick={(e) => {
-                e.preventDefault();
-                this.showModal("deleteSelection");
-              }}
-            >
-              <i class="bi bi-trash"></i>
-            </button>
-
+              </div>
+              <div className="col" Style={"margin: auto;"}>
+                <Input
+                  name="search"
+                  placeholder="Enter your search text"
+                  value={this.state.searchText}
+                  onChange={this.handleSearch}
+                />
+              </div>
+            </div>
             <Table
               header={["Number", "Title", "Date", "Progress"]}
               columns={["number", "title", "date", "progress"]}
@@ -277,11 +368,14 @@ export default class Folders extends Component {
           onConfirm={this.modalOnConfirm}
           show={this.state.show}
           onCancel={this.closeModal}
-          noText={<i class="bi bi-x-circle"></i>}
-          yesText={<i class="bi bi-check-circle"></i>}
+          noText={<i className="bi bi-x-circle"></i>}
+          yesText={<i className="bi bi-check-circle"></i>}
         >
           {this.modalBody()}
         </ConfirmationModal>
+        <Spinner hidden={!this.state.loading} animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
       </>
     );
   }

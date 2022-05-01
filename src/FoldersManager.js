@@ -1,21 +1,69 @@
-import Data from "./data.json";
+import EventsManager from "./EventsManager";
 import File from "./File";
 import Folder from "./Folder";
+const axios = require("axios").default;
 
 export default class FoldersManager {
-  static folders = Data.map((row) => ({ ...row, selected: false }));
-
-  static getFolders(status) {
-    let folders = [];
-    this.getFoldersByStatus(status).forEach((folder) => {
-      folders.push(new Folder(folder));
+  savedFolder = new Folder();
+  static async init() {
+    this.folders = [];
+    // await axios
+    //   .get("http://localhost:3001/folders/")
+    //   .then((response) => {
+    //     response.data.forEach((folder) => {
+    //       this.folders.push(new Folder(folder));
+    //     });
+    //   })
+    //   .catch((error) => {
+    //     console.log(error);
+    //   });
+    await EventsManager.getFolders().then((folders) => {
+      folders.forEach((folder) => {
+        this.folders.push(new Folder(folder));
+      });
     });
-    return folders;
+    // EventsManager.getFolders().forEach((folder) => {
+    //   this.folders.push(new Folder(folder));
+    // });
   }
 
-  static save(folders) {
-    console.log(folders);
+  static folders = []; // = Data.map((row) => ({ ...row, selected: false }));
+  static action = "";
+  static getFolders(status) {
+    // let folders = [];
+    // this.getFoldersByStatus(status).forEach((folder) => {
+    //   folders.push(new Folder(folder));
+    // });
+    // return folders;
+    return this.getFoldersByStatus(status).map((row) => ({
+      ...row,
+      selected: false,
+    }));
   }
+
+  static async save() {
+    const result = { respond: null, error: null };
+    await axios
+      .post("http://localhost:3001/folders/" + this.action, {
+        folder: this.savedFolder,
+      })
+      .then((response) => {
+        this.savedFolder = new Folder(response.data.folder);
+        result.respond = this.savedFolder;
+        if (this.action === "add") {
+          this.folders[this.folders.length - 1] = this.savedFolder;
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        result.error = error;
+      });
+    return result;
+  }
+
+  static lastSavedFolder = () => {
+    return this.savedFolder;
+  };
 
   static getActiveFolders() {
     return this.getFoldersByStatus("Active");
@@ -42,7 +90,7 @@ export default class FoldersManager {
     return new Folder(
       this.folders
         .filter((row) => {
-          return row.id == id;
+          return row.id === id;
         })
         .map((row) => ({
           ...row,
@@ -50,33 +98,51 @@ export default class FoldersManager {
     );
   }
   static indexOf(id) {
-    return this.folders.findIndex((folder) => folder.id == id);
+    return this.folders.findIndex((folder) => {
+      return folder.id === id;
+    });
   }
 
   static add(folder) {
-    folder = { ...folder, id: this.folders.length + 1 };
+    this.action = "add";
+    //folder = new Folder(folder);
     this.folders.push(folder);
+    this.savedFolder = folder;
+    //EventsManager.execute("add", folder);
   }
 
   static deleteFolders(folders) {
     folders.forEach((folder) => {
+      EventsManager.execute("remove", folder);
       this.delete(folder.id);
     });
   }
 
   static delete(id) {
+    this.action = "update";
     this.folders[this.indexOf(id)].status = "Removed";
+    this.savedFolder = this.folders[this.indexOf(id)];
+    //EventsManager.execute("remove", this.folders[this.indexOf(id)]);
   }
   static edit(folder) {
+    this.action = "update";
     this.folders[this.indexOf(folder.id)] = folder;
+    this.savedFolder = folder;
+    //EventsManager.execute("edit", folder);
   }
 
   static archive(id) {
+    this.action = "update";
     this.folders[this.indexOf(id)].status = "Archived";
+    this.savedFolder = this.folders[this.indexOf(id)];
+    //EventsManager.execute("archive", this.folders[this.indexOf(id)]);
   }
 
   static restore(id) {
+    this.action = "update";
     this.folders[this.indexOf(id)].status = "Active";
+    this.savedFolder = this.folders[this.indexOf(id)];
+    //EventsManager.execute("restore", this.folders[this.indexOf(id)]);
   }
 
   //file manager
@@ -90,11 +156,9 @@ export default class FoldersManager {
     }
   }
 
-  static getFilesByStatus() {}
-
   static indexOfFile(fileId, folderId) {
     return this.folders[this.indexOf(folderId)].files.findIndex(
-      (file) => file.id == fileId
+      (file) => file.id === fileId
     );
   }
 
@@ -108,17 +172,20 @@ export default class FoldersManager {
       file.id = "1";
       this.folders[this.indexOf(folderId)] = { ...folder, files: [file] };
     }
+    this.savedFolder = this.folders[this.indexOf(folderId)];
   }
   static deleteFileFromFolder(fileId, folderId) {
     this.folders[this.indexOf(folderId)].files[
       this.indexOfFile(fileId, folderId)
     ].status = "Removed";
+    this.savedFolder = this.folders[this.indexOf(folderId)];
   }
 
   static editFile(file, folderId) {
     this.folders[this.indexOf(folderId)].files[
       this.indexOfFile(file.id, folderId)
     ] = file;
+    this.savedFolder = this.folders[this.indexOf(folderId)];
   }
 
   static getFilesByStatus(folderId, status) {
@@ -139,12 +206,11 @@ export default class FoldersManager {
   }
 
   static findFileInFolder(file, folder) {
-    console.log(folder);
     const files = folder.files;
     if (folder.files !== undefined) {
       return files
         .filter((row) => {
-          return row.id == file.id;
+          return row.id === file.id;
         })
         .map((row) => ({
           ...row,
