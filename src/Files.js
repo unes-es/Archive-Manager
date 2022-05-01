@@ -1,10 +1,18 @@
 import React, { Component } from "react";
+import FileViewer from "react-file-viewer";
 import Table from "./Components/Table";
 import Input from "./Components/Input";
 import { format } from "date-fns";
-import "bootstrap-icons/font/bootstrap-icons.css";
 import ConfirmationModal from "./Components/ConfirmationModal";
 import File from "./File";
+import FoldersManager from "./FoldersManager";
+import FilePreviewerThumbnail from "react-file-previewer";
+import { FilePond, registerPlugin } from "react-filepond";
+import "filepond/dist/filepond.min.css";
+import FilePondPluginFileEncode from "filepond-plugin-file-encode";
+registerPlugin(FilePondPluginFileEncode);
+
+var mime = require("mime-types");
 
 export default class Files extends Component {
   constructor(props) {
@@ -14,16 +22,30 @@ export default class Files extends Component {
       folder: this.props.folder,
       files: this.props.folder.files,
       file: new File(),
+      fileBase64: "",
       _for: "",
+      showAlert: false,
+      alertBody: "",
+      alertVariant: "success",
+      history: [],
     };
+    console.log(this.props.folder);
+    this.props.folder.getFolderEditHistory().then((history) => {
+      this.setState({
+        history: history,
+      });
+    });
   }
+
+  view = (file) => {
+    this.showModal("view", file);
+  };
 
   showModal = (_for, file) => {
     this.setState({ file: file, _for: _for, show: true });
   };
 
   closeModal = () => {
-    const { folder, file } = this.state;
     this.setState({
       show: false,
     });
@@ -31,7 +53,7 @@ export default class Files extends Component {
 
   modalBody = () => {
     const { file, _for } = this.state;
-    if (_for == "add" || _for == "edit") {
+    if (_for === "add" || _for === "edit") {
       return (
         <form>
           <Input
@@ -41,13 +63,27 @@ export default class Files extends Component {
             value={file.name}
             onChange={this.handleChange}
           />
-          <Input
-            name="path"
-            text="Path"
-            placeholder="Enter file path"
-            value={file.path}
-            onChange={this.handleChange}
-          />
+          <div className="mb-3">
+            <label className="form-label" htmlFor="File">
+              File
+            </label>
+
+            <FilePond
+              required={true}
+              allowReorder={false}
+              allowMultiple={false}
+              allowFileEncode={true}
+              onupdatefiles={(files) => {
+                console.log(files[0].getFileEncodeBase64String());
+                //this.setState({fileBase64 : file[0].getFileEncodeBase64String()})
+                if (files[0].getFileEncodeBase64String() !== undefined) {
+                  file.file = files[0].getFileEncodeBase64String();
+                  file.fileType = files[0].fileType;
+                }
+              }}
+              labelIdle='Drag & Drop your file or <span class="filepond--label-action">Browse</span>'
+            />
+          </div>
           <Input
             type="date"
             text="Date"
@@ -57,11 +93,35 @@ export default class Files extends Component {
           />
         </form>
       );
-    } else if (_for == "delete") return "delete?";
+    } else if (_for === "delete") return "delete?";
+    else if (_for === "view") {
+      if (file.file !== undefined) {
+        console.log(file.file);
+
+        return (
+          <FilePreviewerThumbnail
+            file={{
+              data: new Buffer.from(file.file, "base64"),
+              mimeType: file.fileType,
+              name: file.name,
+            }}
+            hideControls={false}
+          />
+
+          // <FileViewer
+          //   fileType={mime.extension(file.fileType)}
+          //   dataUrl={"data:" + file.fileType + ";base64," + file.file}
+          // />
+        );
+      } else {
+        return "No file to view";
+      }
+    }
   };
 
   modalOnConfirm = () => {
     const { file, _for, folder } = this.state;
+    FoldersManager.action = "update";
     switch (_for) {
       case "edit":
         folder.editFile(file);
@@ -75,12 +135,27 @@ export default class Files extends Component {
       case "deleteSelection":
         folder.deleteFiles(
           folder.files.filter((file) => {
-            return file.selected == true;
+            return file.selected === true;
           })
         );
         break;
+      default:
+        break;
     }
-    this.closeModal();
+    if (_for !== "view") {
+      // FoldersManager.save().then((res) => {
+      //   if (res.error !== null) {
+      //     this.setState({ alertVariant: "danger", alertBody: res.error });
+      //   } else {
+      //     this.setState({ alertVariant: "success", folder: res.respond });
+      //   }
+      this.closeModal();
+      //   this.setState({
+      //     showAlert: true,
+      //   });
+      // });
+    }
+    //this.closeModal();
   };
 
   handleChange = (e) => {
@@ -92,7 +167,7 @@ export default class Files extends Component {
   select = (e, id) => {
     e.stopPropagation();
     const { folder } = this.state;
-    const index = folder.files.findIndex((file) => file.id == id);
+    const index = folder.files.findIndex((file) => file.id === id);
     folder.files[index].selected = e.target.checked;
     this.setState({
       folder: folder,
@@ -117,7 +192,7 @@ export default class Files extends Component {
             this.showModal("edit", file);
           }}
         >
-          <i class="bi bi-pencil-square"></i>
+          <i className="bi bi-pencil-square"></i>
         </button>
         <span> </span>
         <button
@@ -128,7 +203,7 @@ export default class Files extends Component {
             this.showModal("delete", file);
           }}
         >
-          <i class="bi bi-trash"></i>
+          <i className="bi bi-trash"></i>
         </button>
       </>
     );
@@ -145,18 +220,18 @@ export default class Files extends Component {
                   <a href="#!" onClick={this.props.showFiles}>
                     <i
                       className="bi bi-arrow-left-circle me-3"
-                      Style="font-size: 1.5rem;"
+                      style={{ fontSize: 1.5 + "rem" }}
                     ></i>
                   </a>
                   {this.props.folder.title} - {this.props.folder.number}
-                  <span Style="position: absolute; right:0px;">
+                  <span style={{ position: "absolute", right: 0 + "px" }}>
                     <button
                       className="btn btn-danger btn-sm me-2"
                       onClick={() => {
                         this.showModal("deleteSelection", this.state.file);
                       }}
                     >
-                      <i class="bi bi-trash"></i>
+                      <i className="bi bi-trash"></i>
                     </button>
                     <button
                       className="btn btn-primary btn-sm me-3"
@@ -166,23 +241,47 @@ export default class Files extends Component {
                         });
                       }}
                     >
-                      <i class="bi bi-file-earmark-plus"></i>
+                      <i className="bi bi-file-earmark-plus"></i>
                     </button>
                   </span>
                 </div>
               </h2>
               <div className="accordion-collapse collapse show">
                 <div className="accordion-body">
-                  {this.state.folder.files !== undefined && (
+                  {this.state.folder.files !== undefined &&
+                  this.state.folder.files.length > 0 ? (
                     <Table
                       actions={this.actions}
                       data={this.state.folder.getActiveFiles()}
                       selectAll={this.selectAll}
                       select={this.select}
-                      header={["name", "path", "date", "progress"]}
-                      columns={["name", "path", "date", "progress"]}
+                      header={["Name", "Type", "Date", "Progress"]}
+                      columns={["name", "fileType", "date", "progress"]}
+                      view={this.view}
                     />
+                  ) : (
+                    <span>
+                      no files yet! click the<span> </span>
+                      <i className="bi bi-file-earmark-plus"></i>
+                      <span> </span>to add a file
+                    </span>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="accordion mt-3 col-sm-8">
+            <div className="accordion-item">
+              <h2 className="accordion-header">
+                <div className="accordion-button">history</div>
+              </h2>
+              <div className="accordion-collapse collapse show">
+                <div className="accordion-body">
+                  <Table
+                    data={this.state.history}
+                    header={["Event", "Date"]}
+                    columns={["event", "createdAt"]}
+                  />
                 </div>
               </div>
             </div>
@@ -192,6 +291,8 @@ export default class Files extends Component {
           onConfirm={this.modalOnConfirm}
           show={this.state.show}
           onCancel={this.closeModal}
+          noText={<i className="bi bi-x-circle"></i>}
+          yesText={<i className="bi bi-check-circle"></i>}
         >
           {this.modalBody()}
         </ConfirmationModal>
